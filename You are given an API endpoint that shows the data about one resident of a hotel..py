@@ -73,7 +73,7 @@ def makeAPIRequest(url):
             cursor.execute(sql, (str(res['residentFirstName']), str(res['residentLastName'])))
             result = cursor.fetchall()
             connection.close()
-            if len(result) >1:
+            if len(result) > 1:
                 print("Many rooms.")
             if len(result) ==1:
                 print(result[0].get('room'))
