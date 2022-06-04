@@ -41,33 +41,45 @@ ROws should be ordered be ordered by decreeasing total_value. In the case of a t
 rows should be sorted lexicographically by name.
 */
 
+
+
+
+
 /*
 WRONG ANSWER (row 2: got ('memory usage', '3', '3', '30'), expected ('memory usage', '3', '2', '20'))
 */
 
 
--- SELECT CASE
---            WHEN g.name = c.group_name THEN c.group_name
---            ELSE g.name
---        END AS name,
---        count(c.group_name) AS all_test_cases,
---        count(CASE
---                  WHEN c.status = 'OK' THEN 1
---              END) AS all_test_cases,
---        sum(CASE
---                WHEN c.status = 'OK' THEN g.test_value
---                ELSE 0
---            END) AS total_value
--- FROM test_groups g
--- LEFT JOIN test_cases c ON g.name = c.group_name
--- GROUP BY CASE
---              WHEN g.name = c.group_name THEN c.group_name
---              ELSE g.name
---          END
--- ORDER BY total_value DESC,
---          CASE
---              WHEN g.name = c.group_name THEN c.group_name
---              ELSE g.name
---          END
+SELECT CASE WHEN test_groups.name = test_cases.group_name THEN test_cases.group_name ELSE test_groups.name END AS name,
+        count(test_cases.group_name) AS all_test_cases,
+        count(CASE WHEN test_cases.status = 'OK' THEN 1 END) AS all_test_cases,
+        sum(CASE WHEN test_cases.status = 'OK' THEN test_groups.test_value ELSE 0 END) AS total_value
+FROM test_groups
+LEFT JOIN test_cases ON test_groups.name = test_cases.group_name
+GROUP BY CASE WHEN test_groups.name = test_cases.group_name THEN test_cases.group_name ELSE test_groups.name END
+ORDER BY total_value DESC, name ASC;
 
 
+
+
+
+SELECT test_cases.group_name, count(test_cases.group_name) AS all_test_cases, count(CASE WHEN test_cases.status = 'OK' THEN 1 END) AS all_test_cases, sum(CASE WHEN test_cases.status = 'OK' THEN test_groups.test_value ELSE 0 END) AS total_value
+FROM test_groups
+LEFT JOIN test_cases ON test_groups.name = test_cases.group_name
+GROUP BY test_cases.group_name
+ORDER BY total_value DESC, test_cases.group_name ASC;
+
+
+
+
+
+SELECT IF(test_groups.name = test_cases.group_name)
+        test_cases.group_name ELSE test_groups.name,
+    count(test_cases.group_name) AS all_test_cases,
+    count(IF(test_cases.status = 'OK')
+        test_cases.group_name ELSE test_groups.name) AS all_test_cases,
+    sum(IF(test_cases.status = 'OK') test_groups.test_value ELSE 0 END) AS total_value
+FROM test_groups
+LEFT JOIN test_cases ON test_groups.name = test_cases.group_name
+GROUP BY IF(test_groups.name = test_cases.group_name) test_cases.group_name ELSE test_groups.name
+ORDER BY total_value DESC, test_cases.group_name ASC;

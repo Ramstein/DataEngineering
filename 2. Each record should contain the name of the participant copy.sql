@@ -27,18 +27,3 @@ insert into participation values ('John', 2009);
 Write an SQL query that returns a table containing one column "name". Each record should contain the name of the participant
 who took part for at least three years in a row. THe result table should be sorted alphabetically by the "name" column.
 */
-
-
-select distinct name
-from (select pp.*,
-             lead(year, 2) over (partition by name order by year) as year2
-      from participation pp
-     ) pp
-where year2 = year + 2;
-
-select distinct name from (
-    select participation.*,
-           lag(year, 2) over (partition by name order by year) as year2
-    from participation
-) participation
-where year2 = year - 2;
